@@ -39,6 +39,9 @@ INSTALLED_APPS = [
     # Requirements
     'django_extensions',
     'rest_framework',
+
+    # Custom apps
+    'accounts',
 ]
 
 MIDDLEWARE = [
@@ -127,3 +130,7 @@ MEDIA_URL = '/media/'
 
 # Add the 'apps' directory to the path
 sys.path.insert(0, os.path.join(BASE_DIR, 'apps'))
+
+
+# Setting the User model
+AUTH_USER_MODEL = 'accounts.User'
