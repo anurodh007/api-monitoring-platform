@@ -1,3 +1,11 @@
 from django.contrib import admin
+from monitors.models import Monitor
 
-# Register your models here.
+
+@admin.register(Monitor)
+class MonitorAdmin(admin.ModelAdmin):
+    list_display = ['name', 'url', 'method', 'interval', 'timeout', 'expected_status_code', 'is_active']
+
+    list_editable = ['method', 'interval', 'timeout', 'expected_status_code', 'is_active']
+
+    list_filter = ['method']
