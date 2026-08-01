@@ -14,8 +14,16 @@ import sys
 from config.env import env, BASE_DIR
 
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
+# Firebase Admin SDK Configuration
+import firebase_admin
+from firebase_admin import credentials
+
+FIREBASE_KEY_PATH = os.path.join(BASE_DIR, 'firebase_config.json')
+
+if not firebase_admin._apps:
+    cred = credentials.Certificate(FIREBASE_KEY_PATH)
+    firebase_admin.initialize_app(cred)
+
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = env('SECRET_KEY')
@@ -134,3 +142,14 @@ sys.path.insert(0, os.path.join(BASE_DIR, 'apps'))
 
 # Setting the User model
 AUTH_USER_MODEL = 'accounts.User'
+
+
+# REST Framework
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'accounts.authentication.FirebaseAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticated',
+    ],
+}
