@@ -1,3 +1,30 @@
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404
 
-# Create your views here.
+from rest_framework import generics
+
+from monitors.models import Monitor
+
+from monitoring.models import MonitoringResult
+from monitoring.serializers import MonitoringResultSerializer
+from monitoring.services import check_api_status
+from monitoring.permissions import IsOwner
+
+
+class MonitoringCheckAPIView(generics.CreateAPIView):
+    """
+    Allows the authenticated owner to check their api status
+    """
+
+    queryset = MonitoringResult.objects.select_related('monitor')
+    serializer_class = MonitoringResultSerializer
+    permission_classes = [IsOwner]
+
+    def perform_create(self, serializer):
+        """
+        Calls check_api_status service and save the serialized data
+        """
+        monitor_id = self.kwargs.get('monitor_id')
+        monitor = get_object_or_404(Monitor, id=monitor_id)
+
+        data = check_api_status(monitor_id)
+        serializer.save(monitor=monitor, **data)

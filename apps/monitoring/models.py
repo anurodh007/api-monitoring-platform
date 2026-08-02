@@ -10,7 +10,7 @@ class MonitoringResult(models.Model):
     monitor = models.ForeignKey(Monitor, on_delete=models.CASCADE, related_name='monitor_results')
 
     status_code = models.PositiveIntegerField()
-    response_time = models.DurationField()
+    response_time = models.FloatField(help_text='Response time in seconds')
     is_successful = models.BooleanField()
     error_message = models.TextField(blank=True, null=True)
     checked_at = models.DateTimeField(auto_now_add=True)
