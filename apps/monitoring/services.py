@@ -11,12 +11,15 @@ REQUEST_MAPPING = {
 }
 
 
-def check_api_status(monitor_id):
+def check_api_status(monitor_or_id):
     """
-    Checks the api status of the requested monitor_id
+    Checks the api status of the requested Monitor instance or ID
     """
 
-    monitor = get_object_or_404(Monitor, id=monitor_id)
+    if isinstance(monitor_or_id, Monitor):
+        monitor= monitor_or_id
+    else:
+        monitor = get_object_or_404(Monitor.objects.select_related('user'), id=monitor_or_id)
 
     url = monitor.url
     method = monitor.method

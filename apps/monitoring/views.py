@@ -1,3 +1,4 @@
+from django.db import transaction
 from django.shortcuts import get_object_or_404
 
 from rest_framework import generics
@@ -17,7 +18,6 @@ class MonitoringCheckAPIView(generics.CreateAPIView):
     Allows the authenticated owner to check individual API Monitor status
     """
 
-    queryset = MonitoringResult.objects.select_related('monitor__user')
     serializer_class = MonitoringResultSerializer
     permission_classes = [IsOwner]
 
@@ -25,11 +25,10 @@ class MonitoringCheckAPIView(generics.CreateAPIView):
         """
         Calls check_api_status service and save the serialized data
         """
-        monitor_id = self.kwargs.get('monitor_id')
-        monitor = get_object_or_404(Monitor, id=monitor_id)
+        data = check_api_status(self.monitor)
 
-        data = check_api_status(monitor_id)
-        serializer.save(monitor=monitor, **data)
+        with transaction.atomic():
+            serializer.save(monitor=self.monitor, **data)
 
 
 
@@ -44,5 +43,4 @@ class MonitoringResultsListAPIView(generics.ListAPIView):
     filterset_class = MonitoringResultFilter
 
     def get_queryset(self):
-        monitor_id = self.kwargs.get('monitor_id')
-        return self.queryset.filter(monitor__id=monitor_id).order_by('-checked_at')
+        return self.queryset.filter(monitor_id=self.monitor.id).order_by('-checked_at')

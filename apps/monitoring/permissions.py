@@ -8,5 +8,9 @@ class IsOwner(permissions.BasePermission):
         if not monitor_id:
             return False
 
-        monitor = Monitor.objects.get(id=monitor_id)
-        return monitor.user == request.user
+        try:
+            view.monitor = Monitor.objects.select_related('user').get(id=monitor_id)
+        except Monitor.DoesNotExist:
+            return False
+
+        return view.monitor.user == request.user

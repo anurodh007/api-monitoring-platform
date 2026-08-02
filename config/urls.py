@@ -29,3 +29,7 @@ urlpatterns = [
     # Api Monitor urls
     path('api/monitors/', include('monitors.urls')),
 ]
+
+
+# Silk Profiling Endpoint
+urlpatterns += [path('silk/', include('silk.urls', namespace='silk'))]
