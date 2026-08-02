@@ -10,6 +10,8 @@ REQUEST_MAPPING = {
     ApiMethod.PATCH: lambda u, timeout: requests.patch(u, json={}, timeout=timeout),
 }
 
+RESPONSE_THRESHOLD = 2.00
+
 
 def check_api_status(monitor_or_id):
     """
@@ -26,24 +28,40 @@ def check_api_status(monitor_or_id):
     timeout = monitor.timeout
     expected_status_code = monitor.expected_status_code
 
-    if method in REQUEST_MAPPING:
-        try:
-            response = REQUEST_MAPPING[method](url, timeout)
+    if method not in REQUEST_MAPPING:
+        return {
+            'status_code': 0,
+            'response_time': 0.0,
+            'is_successful': False,
+            'error_message': f'Unsupported HTTP method: {method}',
+        }
 
-            is_successful = (response.status_code == expected_status_code)
-            error_message = None if is_successful else response.reason
+    try:
+        response = REQUEST_MAPPING[method](url, timeout)
 
-            return {
-                'status_code': response.status_code,
-                'response_time': response.elapsed.total_seconds(),
-                'is_successful': is_successful,
-                'error_message': error_message,
-            }
+        status_code = response.status_code
+        response_time = response.elapsed.total_seconds()
+        is_successful = (
+            (status_code == expected_status_code) and 
+            (response_time <= RESPONSE_THRESHOLD)
+        )
 
-        except requests.RequestException as e:
-            return {
-                'status_code': 0,
-                'response_time': 0.0,
-                'is_successful': False,
-                'error_message': str(e),
-            }
+        if response_time > RESPONSE_THRESHOLD:
+            error_message = 'Unacceptable Response Time.'
+        else:
+            error_message = response.reason
+
+        return {
+            'status_code': response.status_code,
+            'response_time': response_time,
+            'is_successful': is_successful,
+            'error_message': None if is_successful else error_message,
+        }
+
+    except requests.RequestException as e:
+        return {
+            'status_code': 0,
+            'response_time': 0.0,
+            'is_successful': False,
+            'error_message': str(e),
+        }
