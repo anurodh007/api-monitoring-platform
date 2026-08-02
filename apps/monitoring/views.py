@@ -8,7 +8,6 @@ from monitors.models import Monitor
 from monitoring.models import MonitoringResult
 from monitoring.serializers import MonitoringResultSerializer
 from monitoring.services import check_api_status
-from monitoring.permissions import IsOwner
 from monitoring.filters import MonitoringResultFilter
 
 
@@ -19,7 +18,13 @@ class MonitoringCheckAPIView(generics.CreateAPIView):
     """
 
     serializer_class = MonitoringResultSerializer
-    permission_classes = [IsOwner]
+
+    def initial(self, request, *args, **kwargs):
+        super().initial(request, *args, **kwargs)
+        self.monitor = get_object_or_404(
+            Monitor.objects.filter(user=request.user),
+            id=self.kwargs.get('monitor_id')
+        )
 
     def perform_create(self, serializer):
         """
@@ -39,8 +44,14 @@ class MonitoringResultsListAPIView(generics.ListAPIView):
 
     queryset = MonitoringResult.objects.select_related('monitor__user')
     serializer_class = MonitoringResultSerializer
-    permission_classes = [IsOwner]
     filterset_class = MonitoringResultFilter
+
+    def initial(self, request, *args, **kwargs):
+        super().initial(request, *args, **kwargs)
+        self.monitor = get_object_or_404(
+            Monitor.objects.filter(user=request.user),
+            id=self.kwargs.get('monitor_id')
+        )
 
     def get_queryset(self):
         return self.queryset.filter(monitor_id=self.monitor.id).order_by('-checked_at')

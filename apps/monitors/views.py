@@ -3,7 +3,6 @@ from rest_framework.permissions import IsAuthenticated
 
 from monitors.models import Monitor
 from monitors.serializers import MonitorSerializer
-from monitors.permissions import IsOwner
 
 
 class MonitorViewSet(viewsets.ModelViewSet):
@@ -13,7 +12,7 @@ class MonitorViewSet(viewsets.ModelViewSet):
 
     queryset = Monitor.objects.select_related('user')
     serializer_class = MonitorSerializer
-    permission_classes = [IsOwner, IsAuthenticated]
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
         return self.queryset.filter(user=self.request.user).order_by('-created_at')
