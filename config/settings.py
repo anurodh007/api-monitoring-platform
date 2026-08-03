@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'django_filters',
     'silk',
+    'django_celery_beat',
 
     # Custom apps
     'accounts',

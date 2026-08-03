@@ -15,7 +15,7 @@ app = Celery('config')
 # Set worker pool
 app.conf.update(
     worker_pool='threads',
-    worker_concurrency=1,
+    worker_concurrency=10,
 )
 
 # Using a string here means the worker doesn't have to serialize
