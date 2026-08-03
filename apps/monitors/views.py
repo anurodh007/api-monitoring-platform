@@ -13,6 +13,7 @@ class MonitorViewSet(viewsets.ModelViewSet):
     queryset = Monitor.objects.select_related('user')
     serializer_class = MonitorSerializer
     permission_classes = [IsAuthenticated]
+    filterset_fields = ['method']
 
     def get_queryset(self):
         return self.queryset.filter(user=self.request.user).order_by('-created_at')
