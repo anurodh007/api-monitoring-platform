@@ -53,6 +53,13 @@ class Incident(models.Model):
         indexes = [
             models.Index(fields=['monitor', 'status']),
         ]
+        constraints = [
+            models.UniqueConstraint(
+                fields=['monitor'],
+                condition=models.Q(status=IncidentStatus.OPEN),
+                name='unique_open_incident_per_monitor'
+            )
+        ]
 
     def __str__(self):
         return f'[{self.severity}] {self.title} ({self.status})'
