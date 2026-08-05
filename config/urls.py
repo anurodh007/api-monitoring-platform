@@ -28,6 +28,9 @@ urlpatterns = [
 
     # Api Monitor urls
     path('api/monitors/', include('monitors.urls')),
+
+    # Api Incident urls
+    path('api/incidents/', include('incidents.urls')),
 ]
 
 
