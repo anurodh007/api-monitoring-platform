@@ -13,8 +13,7 @@ from monitors.models import Monitor
 from monitoring.models import MonitoringResult
 from monitoring.services import check_api_status
 
-ACTIVE_MONITORS_KEY = 'active_monitors'
-TIME_TO_LIVE = 60 * 60 * 24
+from incidents.tasks import process_monitoring_result_task
 
 
 
@@ -27,10 +26,18 @@ def monitor_checker_task(monitor_id):
         return None
 
     data = check_api_status(monitor_id)
-    return MonitoringResult.objects.create(
+    result = MonitoringResult.objects.create(
         monitor_id=monitor_id,
         **data
     )
+
+    payload = {
+        'monitor_id': result.monitor_id,
+        'is_successful': result.is_successful,
+        'checked_at': result.checked_at,
+    }
+
+    process_monitoring_result_task.delay(payload)
 
 
 

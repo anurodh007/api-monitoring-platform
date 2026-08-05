@@ -189,3 +189,27 @@ CELERY_BROKER_URL = 'redis://127.0.0.1:6379/1'
 CELERY_TIMEZONE = 'Asia/Kathmandu'
 
 CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
+
+CELERY_TASK_QUEUES ={
+    'default': {
+        'exchange': 'default',
+        'routing_key': 'default',
+    },
+    'monitor_checks': {
+        'exchange': 'monitor_checks',
+        'routing_key': 'monitor_checks',
+    },
+    'incident_evaluations': {
+        'exchange': 'incident_evaluations',
+        'routing_key': 'incident_evaluations',
+    },
+}
+
+CELERY_TASK_DEFAULT_QUEUE = 'default'
+CELERY_TASK_DEFAULT_EXCHANGE = 'default'
+CELERY_TASK_DEFAULT_ROUTING_KEY = 'default'
+
+CELERY_TASK_ROUTES = {
+    'monitoring.tasks.monitor_checker_task': {'queue': 'monitor_checks'},
+    'incidents.tasks.process_monitoring_result_task': {'queue': 'incident_evaluations'},
+}
